@@ -9,7 +9,43 @@
     backLeftDrive = hardwareMap.get(DcMotor.class, "motor2");
     backRightDrive = hardwareMap.get(DcMotor.class, "motor3");
 
-    frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+    //testing this instead of set direction because we have encoders - no reverse/forward needed??
+    frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+    /*frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
     frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
     backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-    backRightDrive.setDirection(DcMotor.Direction.FORWARD);
+    backRightDrive.setDirection(DcMotor.Direction.FORWARD);*/
+
+    // Send telemetry message to signify robot waiting;
+    telemetry.addData(">", "Robot Ready.  Press START.");    //
+    telemetry.update();
+
+    // Wait for the game to start (driver presses START)
+    waitForStart();
+
+    // run until the end of the match (driver presses STOP)
+    while (opModeIsActive()) {
+    drive = -gamepad1.left_stick_y;
+    turn  =  gamepad1.right_stick_x;
+
+    // Combine drive and turn for blended motion.
+    left  = drive + turn;
+    right = drive - turn;
+
+    // Normalize the values so neither exceed +/- 1.0
+    max = Math.max(Math.abs(left), Math.abs(right));
+    if (max > 1.0)
+        {
+        left /= max;
+        right /= max;
+         }
+    }
+
+    // Output the safe vales to the motor drives.
+    leftDrive.setPower(left);
+    rightDrive.setPower(right);
