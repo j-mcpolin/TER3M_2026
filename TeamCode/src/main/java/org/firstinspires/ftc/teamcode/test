@@ -1,0 +1,15 @@
+    public DcMotor  frontLeftDrive   = null;
+    public DcMotor  frontRightDrive  = null;
+    public DcMotor  backLeftDrive = null;
+    public DcMotor backRightDrive = null;
+
+    //intialize from drive controller/op mode?
+    frontLeftDrive = hardwareMap.get(DcMotor.class,"motor0");
+    frontRightDrive = hardwareMap.get(DcMotor.class, "motor1");
+    backLeftDrive = hardwareMap.get(DcMotor.class, "motor2");
+    backRightDrive = hardwareMap.get(DcMotor.class, "motor3");
+
+    frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+    frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
+    backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+    backRightDrive.setDirection(DcMotor.Direction.FORWARD);
