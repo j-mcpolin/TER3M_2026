@@ -17,7 +17,7 @@ public class MecanumDrive extends LinearOpMode {
     DcMotor backRightDrive;
 
     IMU imu;
-    boolean isFieldOriented = false;
+    boolean isFieldOriented = true;
 
     @Override
     public void runOpMode() {
