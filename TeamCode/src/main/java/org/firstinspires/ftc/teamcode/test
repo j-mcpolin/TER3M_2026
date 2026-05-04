@@ -1,3 +1,4 @@
+    //look at sample RobotTeleopPOV_Linear and RobotTeleopTank
     public DcMotor  frontLeftDrive   = null;
     public DcMotor  frontRightDrive  = null;
     public DcMotor  backLeftDrive = null;
@@ -15,8 +16,9 @@
     backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
-    /*frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+    //if both sides run forward when set same positive power, if one goes backwards need it - test it
+    /*
+    frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
     frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
     backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
     backRightDrive.setDirection(DcMotor.Direction.FORWARD);*/
@@ -30,8 +32,8 @@
 
     // run until the end of the match (driver presses STOP)
     while (opModeIsActive()) {
-    drive = -gamepad1.left_stick_y;
-    turn  =  gamepad1.right_stick_x;
+        left = -gamepad1.left_stick_y;
+        right = -gamepad1.right_stick_y;
 
     // Combine drive and turn for blended motion.
     left  = drive + turn;
@@ -44,8 +46,11 @@
         left /= max;
         right /= max;
          }
+    
+    // Output the safe vales to the motor drives.
+    frontLeftDrive.setPower(left);
+    backLeftDrive.setPower(left);
+    frontRightDrive.setPower(right);
+    backRightDrive.setPower(right);
     }
 
-    // Output the safe vales to the motor drives.
-    leftDrive.setPower(left);
-    rightDrive.setPower(right);
