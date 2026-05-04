@@ -59,10 +59,19 @@ public class MecanumDrive extends LinearOpMode {
         double backRightPower = forward + right - rotate;
         double backLeftPower = forward - right + rotate;
 
-        frontLeftDrive.setPower(frontLeftPower);
-        frontRightDrive.setPower(frontRightPower);
-        backLeftDrive.setPower(backLeftPower);
-        backRightDrive.setPower(backRightPower);
+        double maxPower = 1.0;
+        double maxSpeed = 1.0;
+
+        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
+
+
+        frontLeftDrive.setPower(maxSpeed * (frontLeftPower / maxPower));
+        frontRightDrive.setPower(maxSpeed * (frontRightPower / maxPower));
+        backLeftDrive.setPower(maxSpeed * (backLeftPower / maxPower));
+        backRightDrive.setPower(maxSpeed * (backRightPower / maxPower));
     }
 
     public void driveFieldOriented(double forward, double right, double rotate){
