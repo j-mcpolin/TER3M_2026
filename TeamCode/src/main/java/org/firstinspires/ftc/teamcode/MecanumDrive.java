@@ -62,7 +62,7 @@ public class MecanumDrive extends LinearOpMode {
         double maxPower = 1.0;
         double maxSpeed = 0.9;
 
-        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(frontLeftPower - 0.2));
         maxPower = Math.max(maxPower, Math.abs(frontRightPower));
         maxPower = Math.max(maxPower, Math.abs(backRightPower));
         maxPower = Math.max(maxPower, Math.abs(backLeftPower));
