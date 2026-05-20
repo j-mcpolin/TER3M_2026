@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp(name = "Robotics112 (Blocks to Java)")
 public class Robotics112 extends LinearOpMode {
 
+  private AprilTagProcessor aprilTag;
+  private VisionPortal visionPortal;
   private ColorSensor colourSensor;
   private DcMotor motor0;
   private DcMotor motor1;
@@ -27,6 +29,8 @@ public class Robotics112 extends LinearOpMode {
     int Blue;
     int Green;
     int Red;
+    initAprilTag();
+
 
     colourSensor = hardwareMap.get(ColorSensor.class, "colourSensor");
     motor0 = hardwareMap.get(DcMotor.class, "motor0");
@@ -75,7 +79,28 @@ public class Robotics112 extends LinearOpMode {
         telemetry.addLine("PURPLE");
         telemetry.addData("PURPLE", 0);
       }
+      telemetryAprilTag();
       telemetry.update();
+
+       // Save CPU resources; can resume streaming when needed.
+        if (gamepad1.dpad_down) {
+            visionPortal.stopStreaming();
+        } else if (gamepad1.dpad_up) {
+            visionPortal.resumeStreaming();
+        }
+
+        // Share the CPU.
+        sleep(20);
     }
-  }
+        // Save more CPU resources when camera is no longer needed.
+        visionPortal.close();
+  } // end method runOpMode()
+
+     /**
+     * Initialize the AprilTag processor.
+     */
+    private void initAprilTag() {
+
+        // Create the AprilTag processor.
+        aprilTag = new AprilTagProcessor.Builder()
 }
