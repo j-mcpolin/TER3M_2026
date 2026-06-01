@@ -9,11 +9,21 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+import java.util.List;
+import java.util.Optional;
 
 @TeleOp
 public class MecanumDrive extends LinearOpMode {
+    AprilTagProcessor aprilTag;
+    VisionPortal visionPortal;
     DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
@@ -22,11 +32,26 @@ public class MecanumDrive extends LinearOpMode {
     IMU imu;
     boolean isFieldOriented = true;
 
+    private void initApriltag() {
+        aprilTag = new AprilTagProcessor.Builder()
+                .build();
+
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+
+        builder.enableLiveView(true);
+
+        builder.addProcessor(aprilTag);
+
+        visionPortal = builder.build();
+    }
 
     NormalizedColorSensor colorSensor;
     final float[] hsvValues = new float[3];
     @Override
     public void runOpMode() {
+        initApriltag();
+
         frontLeftDrive = hardwareMap.get(DcMotor.class,  "frontLeft");
         frontRightDrive = hardwareMap.get(DcMotor.class, "frontRight");
         backLeftDrive = hardwareMap.get(DcMotor.class, "backLeft");
@@ -51,6 +76,18 @@ public class MecanumDrive extends LinearOpMode {
         waitForStart();
         telemetry.setAutoClear(true);
         while(opModeIsActive()) {
+            String obelisk = "Idk";
+            for (AprilTagDetection tag : aprilTag.getDetections()) {
+
+                if (tag.id == 21) {
+                    obelisk = "GPP";
+                } else if (tag.id == 22) {
+                    obelisk = "PGP";
+                } else if (tag.id == 23) {
+                    obelisk = "PPG";
+                }
+            }
+            telemetry.addData("Obelisk Pattern", obelisk);
 
             if (gamepad1.aWasPressed()){
                 isFieldOriented = !isFieldOriented;
@@ -69,7 +106,22 @@ public class MecanumDrive extends LinearOpMode {
             updateColorSensor();
             telemetry.addData("Drive Mode", isFieldOriented ? "Field Oriented" : "Robot Centric");
             telemetry.update();
+        };
+    }
+
+    private Optional<String> checkObelisk(List<AprilTagDetection> tagDetections) {
+        for (AprilTagDetection tag : tagDetections) {
+            switch (tag.id) {
+                case 21:
+                    return Optional.of("GPP");
+                case 22:
+                    return Optional.of("PGP");
+                case 23:
+                    return Optional.of("PPG");
+            }
         }
+
+        return Optional.empty();
     }
 
     public void drive(double forward, double right, double rotate) {
