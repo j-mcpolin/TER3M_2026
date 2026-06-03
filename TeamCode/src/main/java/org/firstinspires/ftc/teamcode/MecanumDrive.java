@@ -31,6 +31,7 @@ public class MecanumDrive extends LinearOpMode {
 
     IMU imu;
     boolean isFieldOriented = true;
+    boolean isAutoAligning = false;
 
     private void initApriltag() {
         aprilTag = new AprilTagProcessor.Builder()
@@ -92,12 +93,25 @@ public class MecanumDrive extends LinearOpMode {
             if (gamepad1.aWasPressed()){
                 isFieldOriented = !isFieldOriented;
             }
-            if (isFieldOriented) {
-                driveFieldOriented(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+
+
+            if (gamepad1.bWasPressed()) {
+                isAutoAligning = !isAutoAligning;
             }
-            else{
-                drive(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+
+
+            if (isAutoAligning) {
+                alignToAprilTag(20, 25);
+            } else {
+
+                if (isFieldOriented) {
+                    driveFieldOriented(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+                }
+                else{
+                    drive(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+                }
             }
+
             if (gamepad1.yWasPressed()) {
                 imu.resetYaw();
             }
@@ -105,6 +119,7 @@ public class MecanumDrive extends LinearOpMode {
 
             updateColorSensor();
             telemetry.addData("Drive Mode", isFieldOriented ? "Field Oriented" : "Robot Centric");
+            telemetry.addData("Auto-Align", isAutoAligning ? "ON (Tag 20)" : "OFF");
             telemetry.update();
         };
     }
@@ -182,5 +197,47 @@ public class MecanumDrive extends LinearOpMode {
         telemetry.addData("Detected Element", detectedColor);
         telemetry.addData("Hue Angle (Deg)", "%.1f", hue);
         telemetry.addData("Saturation/Intensity", "%.2f", saturation);
+    }
+
+
+
+    private void alignToAprilTag(int targetTagId, int tolerance) {
+        AprilTagDetection targetTag = null;
+
+
+        for (AprilTagDetection tag : aprilTag.getDetections()) {
+            if (tag.id == targetTagId) {
+                targetTag = tag;
+                break;
+            }
+        }
+
+        if (targetTag == null) {
+            telemetry.addData("Align Status", "ion see shi cuhh");
+            return;
+        }
+
+
+        double frameCenterX = 320;
+        double tagCenterX = targetTag.center.x;
+        double errorX = tagCenterX - frameCenterX;
+
+
+        if (Math.abs(errorX) < tolerance) {
+            telemetry.addData("Align Status", "shi aligned asf!");
+            drive(0, 0, 0);
+            return;
+        }
+
+
+        double rotationPower = errorX * -0.002;
+        rotationPower = Math.max(-1.0, Math.min(1.0, rotationPower));
+
+        telemetry.addData("Align Status", "Aligning");
+        telemetry.addData("Tag Center X", "%.0f", tagCenterX);
+        telemetry.addData("Error", "%.0f", errorX);
+        telemetry.addData("Rotation Power", "%.2f", rotationPower);
+
+        drive(0, 0, rotationPower);
     }
 }
